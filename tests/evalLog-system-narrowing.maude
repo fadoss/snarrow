@@ -1,0 +1,180 @@
+*** Programming and Symbolic Computation in Maude
+*** F. Duran, S. Eker, S. Escobar, N. Marti-Oliet, J. Meseguer, R. Rubio, C. Talcott
+
+fmod LP-SYNTAX is
+  including NAT . including QID .
+
+  sort Variable .
+  op #_ : Nat -> Variable .
+
+  sort Term NvTerm .
+  subsort Qid < NvTerm < Term .
+  subsort Variable < Term .
+  op _[_] : Qid NeTermList -> NvTerm [ctor] .
+
+  sort NeTermList .
+  subsort Term < NeTermList .
+  op _,_ : NeTermList NeTermList -> NeTermList [ctor assoc] .
+
+  sort Predicate .
+  op _`(_`) : Qid NeTermList -> Predicate [ctor] .
+
+  sort PredicateList .
+  op nil : -> PredicateList .
+  op _,_ : Predicate PredicateList -> PredicateList .
+
+endfm
+
+mod LP-SEMANTICS is
+  including LP-SYNTAX .
+
+  var PL : PredicateList .
+  vars X Y Z : Term .
+
+  sort Configuration .
+  op <_> : PredicateList -> Configuration .
+
+  rl [fact]     : < 'mother('jane, 'mike),PL >  => < PL > [narrowing] .
+  rl [fact]     : < 'mother('sally, 'john),PL > => < PL > [narrowing] .
+  rl [fact]     : < 'father('tom, 'sally),PL >  => < PL > [narrowing] .
+  rl [fact]     : < 'father('tom, 'erica),PL >  => < PL > [narrowing] .
+  rl [fact]     : < 'father('mike, 'john),PL >  => < PL > [narrowing] .
+  rl [father]   : < 'parent(X,Y),PL >         => < 'father(X,Y),PL > [narrowing] .
+  rl [mother]   : < 'parent(X,Y),PL >         => < 'mother(X,Y),PL > [narrowing] .
+  rl [sibling]  : < 'sibling(X,Y),PL >        => < 'parent(Z,X),'parent(Z,Y),PL > [narrowing nonexec] .
+  rl [grandpa]  : < 'relative(X,Y),PL >       => < 'parent(X,Z),'parent(Z,Y),PL > [narrowing nonexec] .
+  rl [relative] : < 'relative(X,Y),PL >       => < 'sibling(X,Z),'relative(Z,Y),PL > [narrowing nonexec] .
+endm
+
+---(
+vu-narrow < 'sibling('sally,'erica),nil > =>* < nil > .
+
+Solution 1
+rewrites: 7 in 3ms cpu (4ms real) (1904 rewrites/second)
+state: < nil >
+accumulated substitution:
+variant unifier:
+
+No more solutions.
+rewrites: 7 in 4ms cpu (5ms real) (1529 rewrites/second)
+)
+
+---(
+vu-narrow < 'sibling(X,'erica),nil > =>* < nil > .
+
+vu-narrow in LP-SEMANTICS : < 'sibling(X,'erica),nil > =>* < nil > .
+
+Solution 1
+rewrites: 19 in 4ms cpu (4ms real) (4251 rewrites/second)
+state: < nil >
+accumulated substitution:
+X --> 'sally
+variant unifier:
+
+Solution 2
+rewrites: 20 in 5ms cpu (5ms real) (3897 rewrites/second)
+state: < nil >
+accumulated substitution:
+X --> 'erica
+variant unifier:
+
+No more solutions.
+rewrites: 20 in 7ms cpu (7ms real) (2578 rewrites/second)
+)
+
+---(
+vu-narrow < 'sibling(X,Y),nil > =>* < nil > .
+
+Solution 1
+rewrites: 19 in 5ms cpu (5ms real) (3713 rewrites/second)
+state: < nil >
+accumulated substitution:
+X --> 'sally
+Y --> 'sally
+variant unifier:
+
+Solution 2
+rewrites: 20 in 5ms cpu (5ms real) (3814 rewrites/second)
+state: < nil >
+accumulated substitution:
+X --> 'sally
+Y --> 'erica
+variant unifier:
+
+Solution 3
+rewrites: 21 in 5ms cpu (6ms real) (3508 rewrites/second)
+state: < nil >
+accumulated substitution:
+X --> 'erica
+Y --> 'sally
+variant unifier:
+
+Solution 4
+rewrites: 22 in 6ms cpu (6ms real) (3604 rewrites/second)
+state: < nil >
+accumulated substitution:
+X --> 'erica
+Y --> 'erica
+variant unifier:
+
+Solution 5
+rewrites: 23 in 6ms cpu (7ms real) (3330 rewrites/second)
+state: < nil >
+accumulated substitution:
+X --> 'john
+Y --> 'john
+variant unifier:
+
+Solution 6
+rewrites: 24 in 7ms cpu (8ms real) (3036 rewrites/second)
+state: < nil >
+accumulated substitution:
+X --> 'mike
+Y --> 'mike
+variant unifier:
+
+Solution 7
+rewrites: 25 in 8ms cpu (9ms real) (2870 rewrites/second)
+state: < nil >
+accumulated substitution:
+X --> 'john
+Y --> 'john
+variant unifier:
+
+No more solutions.
+rewrites: 25 in 10ms cpu (11ms real) (2360 rewrites/second)
+)
+
+---(
+vu-narrow < 'relative('jane,'john),nil > =>* < nil > .
+
+Solution 1
+rewrites: 11 in 4ms cpu (5ms real) (2215 rewrites/second)
+state: < nil >
+accumulated substitution:
+variant unifier:
+
+No more solutions.
+rewrites: 11 in 5ms cpu (5ms real) (1904 rewrites/second)
+)---
+
+---(
+vu-narrow [2] < 'relative(X,'john),nil > =>* < nil > . --- Infinite reduction
+
+Solution 1
+rewrites: 26 in 8ms cpu (9ms real) (2926 rewrites/second)
+state: < nil >
+accumulated substitution:
+X --> 'tom
+variant unifier:
+
+Solution 2
+rewrites: 29 in 122ms cpu (122ms real) (237 rewrites/second)
+state: < nil >
+accumulated substitution:
+X --> 'jane
+variant unifier:
+
+No more solutions.
+rewrites: 40 in 18ms cpu (19ms real) (2113 rewrites/second)
+)---

@@ -1,0 +1,65 @@
+***
+*** Logic programming with cuts and negation as in Prolog (using narrowing)
+***
+*** append using order-sorted signatures and associative operators
+***
+
+load prolog.maude
+
+smod APPEND is
+  extending LP-EXTRA+NEG .
+  extending LP-EXTRA+CUT .
+
+  strat append : Nat @ PredicateList .
+  op append-count : -> Nat .
+  eq append-count = 6 .
+
+  sd append(0) := app0 .
+  sd append(1) := app1 .
+  sd append(2) := app2 .
+  sd append(3) := cont .
+  sd append(4) := rev1 .
+  sd append(5) := rev2 .
+
+  vars L1 L2 L3 : Term .
+  vars X : Qid .
+
+  *** Associative operator
+  op empty : -> Term [ctor] .
+  op _·_ : Term Term -> Term [assoc ctor prec 40 id: empty] .
+
+  rl [app0] : 'append('nil, L1, L1) => nil .
+  rl [app1] : 'append('cons[X, L1], L2, 'cons[X, L3]) => 'append(L1, L2, L3) .
+  rl [app2] : 'append2(L1, L2, L1 · L2) => nil .
+  rl [cont] : 'contains(X, L1 · X · L2) => nil .
+  rl [rev1] : 'reverse(empty, empty) => nil .
+  rl [rev2] : 'reverse(X · L1, L2 · X) => 'reverse(L1, L2) .
+
+  op append-hasCut : Nat -> Bool .
+
+  eq append-hasCut(N:Nat) = false [owise] .
+endsm
+
+view Append from PROGRAM to APPEND is
+  strat program to append .
+  op programCount to term append-count .
+  var N : Nat .
+  op hasCut to append-hasCut .
+endv
+
+smod PROLOG-APPEND is
+  including PROLOG+CUT{Append} .
+  vars X Y Z : Term .
+endsm
+
+eof
+
+*** snarrow < 'append('nil, 'a, X) > using solve .
+*** snarrow < 'append('cons['a, 'b], 'c, X) > using solve .
+*** snarrow < 'append('cons['b, 'cons['a, 'nil]], 'c, X) > using solve .
+
+*** snarrow < 'contains('a, 'a · 'b · 'c) > using solve .
+*** snarrow < 'contains('a, 'ax · 'b · 'c) > using solve .
+
+*** snarrow < 'reverse('nil, X) > using solve .
+*** snarrow < 'reverse('1 · '2 · '3, X) > using solve .

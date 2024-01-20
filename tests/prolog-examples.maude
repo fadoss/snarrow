@@ -1,0 +1,147 @@
+***
+*** Logic programming with cuts and negation as in Prolog (using narrowing)
+***
+
+load prolog.maude
+
+smod EXAMPLES is
+  extending LP-EXTRA+NEG .
+  extending LP-EXTRA+CUT .
+
+  vars X Y Z : Term .
+  var  N     : Nat .
+
+  strat negation-bycut : Nat @ Program .
+  op negation-bycut-count : -> Nat .
+  eq negation-bycut-count = 2 .
+  op negation-bycut-hasCut : Nat -> Bool .
+
+  rl [nbc0] : '\+(X) => 'call(X), !, 'fail(X) [narrowing] .
+  rl [nbc1] : '\+(X) => nil [narrowing] .
+
+  sd negation-bycut(0) := soc0 .
+  sd negation-bycut(1) := soc1 .
+
+  eq negation-bycut-hasCut(0) = true .
+  eq negation-bycut-hasCut(1) = false .
+
+  *** Socrate syllogism, to be used with the negation-aware strategy
+  strat socrate : Nat @ PredicateList .
+  op socrate-count : -> Nat .
+  eq socrate-count = 3 .
+
+  sd socrate(0) := soc0 .
+  sd socrate(1) := soc1 .
+  sd socrate(2) := soc2 .
+
+  rl [soc0] : 'human('socrate) => nil [narrowing] .
+  rl [soc1] : 'mortal(X) => 'human(X) [narrowing] .
+  rl [soc2] : 'inmortal(X) => '\+('mortal[X]) [narrowing] .
+
+  *** An ad-hoc cut is used instead of negation
+  strat socrate2 : Nat @ PredicateList .
+  op socrate2-count : -> Nat .
+  eq socrate2-count = 4 .
+
+  sd socrate2(0) := socc0 .
+  sd socrate2(1) := socc1 .
+  sd socrate2(2) := socc2 .
+  sd socrate2(3) := socc3 .
+
+  rl [socc0] : 'human('socrate) => nil [narrowing] .
+  rl [socc1] : 'mortal(X) => 'human(X) [narrowing] .
+  rl [socc2] : 'inmortal(X) => 'mortal(X), !, 'fail(X) [narrowing] .
+  rl [socc3] : 'inmortal(X) => nil [narrowing] .
+
+  *** Negation is defined by means of a cut using call
+  *** (fail is any predicate that fails)
+  *** eq socrate3 = 'human('socrate) :- nil ;
+  ***   'mortal(x{1}) :- 'human(x{1}) ;
+  ***   'inmortal(x{1}) :- '\+('mortal[x{1}]) ;
+  ***    negation-bycut .
+
+  *** Set disjointness using negation
+  strat sets : Nat @ PredicateList .
+  op sets-count : -> Nat .
+  eq sets-count = 5 .
+
+  sd sets(0) := set0 .
+  sd sets(1) := set1 .
+  sd sets(2) := set2 .
+  sd sets(3) := set3 .
+  sd sets(4) := set4 .
+
+  rl [set0] : 'member(X, 'cons[X, Y]) => nil [narrowing] .
+  rl [set1] : 'member(X, 'cons[Y, Z]) => 'member(X, Z) [narrowing] .
+  rl [set2] : 'intersect('cons[X, Y], Z) => 'member(X, Z) [narrowing] .
+  rl [set3] : 'intersect('cons[X, Y], Z) => 'intersect(Y, Z) [narrowing] .
+  rl [set4] : 'disjoint(X, Y) => '\+('intersect[X, Y]) [narrowing] .
+
+  *** Family example
+  strat family : Nat @ PredicateList .
+  op family-count : -> Nat .
+  eq family-count = 12 .
+
+  sd family(0) := fam0 .
+  sd family(1) := fam1 .
+  sd family(2) := fam2 .
+  sd family(3) := fam3 .
+  sd family(4) := fam4 .
+  sd family(5) := fam5 .
+  sd family(6) := fam6 .
+  sd family(7) := fam7 .
+  sd family(8) := fam8 .
+  sd family(9) := fam9 .
+  sd family(10) := dis1 .
+  sd family(11) := dis2 .
+
+  op family-hasCut : Nat -> Bool .
+
+  eq family-hasCut(10) = true .
+  eq family-hasCut(N) = false [owise] .
+
+  rl [fam0] : 'mother('jane, 'mike) => nil [narrowing] .
+  rl [fam1] : 'mother('sally, 'john) => nil [narrowing] .
+  rl [fam2] : 'father('tom, 'sally) => nil [narrowing] .
+  rl [fam3] : 'father('tom, 'erica) => nil [narrowing] .
+  rl [fam4] : 'father('mike, 'john) => nil [narrowing] .
+
+  rl [fam5] : 'sibling(X, Y) => 'parent(Z, X), 'parent(Z, Y) [narrowing nonexec] .
+  rl [fam6] : 'parent(X, Y) => 'father(X, Y) [narrowing] .
+  rl [fam7] : 'parent(X, Y) => 'mother(X, Y) [narrowing] .
+  rl [fam8] : 'relative(X, Y) => 'parent(X, Z),'parent(Z, Y) [narrowing nonexec] .
+  rl [fam9] : 'relative(X, Y) => 'sibling(X, Z),'relative(Z, Y) [narrowing nonexec] .
+ 
+  rl [dis1] : 'distinct(X, X) => !, 'fail(X) .
+  rl [dis2] : 'distinct(X, Y) => nil .
+endsm
+
+view Socrate from PROGRAM to EXAMPLES is
+  strat program to socrate2 .
+  op programCount to term socrate2-count .
+  var N : Nat .
+  op hasCut(N) to term N == 2 .
+endv
+
+view Family from PROGRAM to EXAMPLES is
+  strat program to family .
+  op programCount to term family-count .
+  var N : Nat .
+  op hasCut to family-hasCut .
+endv
+
+smod PROLOG-FAMILY is
+  including PROLOG+CUT{Family} .
+  vars X Y Z : Term .
+endsm
+
+smod PROLOG-SOCRATE is
+  including PROLOG+CUT{Socrate} .
+  vars X Y Z : Term .
+endsm
+
+eof
+
+*** snarrow < 'mortal('socrate) > using solve .
+*** snarrow < 'inmortal('poseidon) > using solve .
+*** snarrow < 'inmortal('socrate) > using solve .

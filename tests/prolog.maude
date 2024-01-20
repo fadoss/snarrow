@@ -1,0 +1,249 @@
+***
+*** Logic programming with cuts and negation as in Prolog (using narrowing)
+***
+
+fmod LP-SYNTAX is
+  protecting NAT .
+  protecting QID .
+
+  sort Variable .
+  op x{_} : Nat -> Variable [ctor] .
+
+  sort Term NvTerm .
+  subsort Qid < NvTerm < Term .
+  subsort Variable < Term .
+  op _[_] : Qid NeTermList -> NvTerm [ctor prec 30 gather (e &)] .
+
+  sort NeTermList .
+  subsort Term < NeTermList .
+  op _,_ : NeTermList NeTermList -> NeTermList [ctor assoc] .
+
+  sort Predicate .
+  op _`(_`) : Qid NeTermList -> Predicate [ctor prec 30 gather (e &)] .
+
+  sorts PredicateList NePredicateList .
+  subsort Predicate < NePredicateList < PredicateList .
+
+  op nil : -> PredicateList [ctor] .
+
+  op _,_ : PredicateList PredicateList -> PredicateList [ctor assoc prec 50 id: nil] .
+  op _,_ : NePredicateList PredicateList -> NePredicateList [ditto] .
+  op _,_ : PredicateList NePredicateList -> NePredicateList [ditto] .
+
+  sort Clause .
+  op _:-_ : Predicate PredicateList -> Clause [ctor prec 60] .
+
+  sort Program .
+  subsort Clause < Program .
+  op nil : -> Program .
+  op _;_ : Program Program -> Program [ctor assoc prec 70 id: nil] .
+
+endfm
+
+fmod LP-SYNTAX+CUT is
+  extending LP-SYNTAX .
+
+  *** Predicate lists may contain cuts, but cut-free predicate lists do not
+  sorts CfPredicateList NeCfPredicateList .
+  subsorts Predicate < NeCfPredicateList < CfPredicateList NePredicateList < PredicateList .
+
+  *** The cut symbol
+  op ! : -> NePredicateList [ctor] .
+
+  op nil : -> CfPredicateList [ctor ditto] .
+
+  op _,_ : NeCfPredicateList NeCfPredicateList -> NeCfPredicateList [ditto] .
+  op _,_ : CfPredicateList CfPredicateList -> CfPredicateList [ditto] .
+  op _,_ : NeCfPredicateList CfPredicateList -> NeCfPredicateList [ditto] .
+  op _,_ : CfPredicateList NeCfPredicateList -> NeCfPredicateList [ditto] .
+  op _,_ : PredicateList CfPredicateList -> PredicateList [ditto] .
+  op _,_ : CfPredicateList PredicateList -> PredicateList [ditto] .
+endfm
+
+mod LP-SEMANTICS is
+  protecting LP-SYNTAX .
+
+  sort Configuration .
+
+  vars N N1 N2 : Nat .
+  var  P       : Predicate .
+  vars PL1 PL2 : PredicateList .
+
+  op <_> : PredicateList -> Configuration [ctor] .
+
+ crl [clause] : < P, PL1 > => < PL2, PL1 >
+  if P => PL2 .
+
+endm
+
+mod LP-SEMANTICS+CALL is
+  extending LP-SEMANTICS .
+
+  var N : Nat .
+  var Q : Qid .
+  var NeTL : NeTermList .
+  var PL : PredicateList .
+  var V : Variable .
+
+  *** The Prolog call/1 meta-predicate
+  *** The call argument term is transformed equationally into a predicate
+  *** in the head of the predicate list
+  eq [call] : < 'call(Q[NeTL]), PL > = < Q(NeTL), PL > .
+
+endm
+
+mod LP-EXTRA is
+  protecting LP-SEMANTICS .
+
+  op isSolution : Configuration -> Bool .
+
+  var N : Nat .
+  var Conf : Configuration .
+
+  eq isSolution(< nil >) = true .
+  eq isSolution(Conf) = false [owise] .
+endm
+
+mod LP-EXTRA+NEG is
+  extending LP-EXTRA .
+
+  var N : Nat .
+  var Q : Qid .
+  var NeTL : NeTermList .
+  var PL : PredicateList .
+  var Conf : Configuration .
+
+  *** With this rule, negation as failure can be implemented using strategies
+  crl [negation] : < '\+(Q[NeTL]), PL > => < PL >
+   if < Q(NeTL) > => Conf .
+
+endm
+
+mod LP-EXTRA+CUT is
+  extending LP-SYNTAX+CUT .
+  extending LP-SEMANTICS+CALL .
+  extending LP-EXTRA .
+
+  vars N1 N2 : Nat .
+  var CfPL : CfPredicateList .
+  var PL : PredicateList .
+
+  *** This rule is used to implement cuts using strategies
+  crl [cut] : < CfPL, !, PL > => < PL >
+   if < CfPL > => < nil > .
+
+endm
+
+smod PROLOG is
+  protecting LP-EXTRA .
+
+  *** A strategy that supports neither negation nor cuts
+  strat solve-simple @ Configuration .
+
+  var Conf : Configuration .
+
+  sd solve-simple := match < nil > ? idle : (
+    *** Uses a clause in the first objective.
+    clause{all} ;
+    *** Continues recursively
+    solve-simple) .
+
+endsm
+
+smod PROLOG+NEG is
+  protecting LP-EXTRA+NEG .
+
+  *** A strategy able to deal with negation but not with cuts
+  strat solve-neg @ Configuration .
+
+  var Conf : Configuration .
+
+  sd solve-neg := match < nil > ? idle : (
+    *** Uses a clause in the first objective, or if is a negation, tries to
+    *** prove that the argument predicate does not hold for any substitution
+    (clause{all} | negation{not(solve-neg)}) ;
+    *** Continues recursively
+    solve-neg) .
+endsm
+
+sth PROGRAM is
+  protecting LP-SYNTAX .
+  *** Enumeration of the program rules
+  strat program : Nat @ PredicateList .
+  *** Number of rules
+  op programCount : -> Nat .
+  *** Whether a rule contains a cut
+  op hasCut : Nat -> Bool .
+endsth
+
+smod PROLOG+CUT{X :: PROGRAM} is
+  protecting LP-EXTRA+CUT .
+
+  var N : Nat .
+  var P : Predicate .
+  var PL1 PL : PredicateList .
+  var PL2 CfPL : CfPredicateList .
+  var Conf : Configuration .
+
+  *** A strategy able to deal with cuts
+  *** (negation can be implemented using a cut and the call meta-predicate)
+  ***
+  *** Two strategies are defined: 'solve' tries to find all solutions while
+  *** 'solveOne' stops when it arrives to the first one. This solution
+  *** coincides with the first Prolog would have found.
+  strats solve solveOne @ Configuration .
+
+  sd solve := match < nil > or-else (
+    *** If the objective list does not contain a cut,
+    *** it tries to unify the head with the program clauses as usual
+    matchrew Conf s.t. < CfPL > := Conf by Conf using clauseWalk(0)
+    *** At the presence of a cut, it tries to find a single solution for the
+    *** objectives to its left and then it continues with the rest as usual
+    | matchrew Conf s.t. < CfPL, !, PL > := Conf by Conf using (cut{solveOne} ; solve)
+  ) .
+
+  *** The same as the previous but calling 'clauseWalkOne' and 'solveOne' instead
+  sd solveOne := match < nil > or-else (
+    matchrew Conf s.t. < CfPL > := Conf by Conf using clauseWalkOne(0)
+    | matchrew Conf s.t. < CfPL, !, PL > := Conf by Conf using (cut{solveOne} ; solveOne)
+  ) .
+
+  *** These strategies visit all program clauses in order until they find
+  *** one whose head can be unified with the head of the objective list.
+  *** Then they continue with 'solve' recursively.
+  ***
+  *** Clauses with a cut are treated differently to ensure the inter-clauses
+  *** effect of the cut.
+  strats clauseWalk clauseWalkOne : Nat @ Configuration .
+
+  csd clauseWalk(N) := (clause{program(N)} ; solve) | clauseWalk(s N)
+   if N < programCount /\ not hasCut(N) .
+  csd clauseWalk(N) := (clause{program(N)} ; cut{solveOne}) ? solve : clauseWalk(s N)
+   if N < programCount /\ hasCut(N) .
+
+  *** The same as 'clauseWalk' but the next clause is only tried
+  *** if the previous does not succeeded (using or-else instead of |).
+  csd clauseWalkOne(N) := (clause{program(N)} ; solveOne) or-else clauseWalkOne(s N)
+   if N < programCount /\ not hasCut(N) .
+  csd clauseWalkOne(N) := (clause{program(N)} ; cut{solveOne}) ? solveOne : clauseWalkOne(s N)
+   if N < programCount /\ hasCut(N) .
+
+endsm
+
+sth INTERPRETER is
+  protecting LP-SEMANTICS .
+
+  strat solve @ Configuration .
+endsth
+
+view Simple from INTERPRETER to PROLOG is
+  strat solve to solve-simple .
+endv
+
+view Negation from INTERPRETER to PROLOG+NEG is
+  strat solve to solve-neg .
+endv
+
+view Cut{X :: PROGRAM} from INTERPRETER to PROLOG+CUT{X} is
+  strat solve to solve .
+endv

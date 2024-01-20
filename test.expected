@@ -1,0 +1,621 @@
+snarrow in NARROWING-VENDING-MACHINE : < M q > using buy-a[M <- $] .
+
+Solution 1
+result State: < $ q a >
+accumulated substitution:
+M --> $ q q q
+
+No more solutions.
+snarrow in NARROWING-VENDING-MACHINE : < M q > using buy-a ; buy-c ; buy-c .
+
+Solution 1
+result State: < a c c ?2:Marking >
+accumulated substitution:
+M --> $ $ q q ?2:Marking
+
+No more solutions.
+snarrow [3] in NARROWING-VENDING-MACHINE : < M q > using buy-a + .
+
+Solution 1
+result State: < q a ?0:Marking >
+accumulated substitution:
+M --> q q q ?0:Marking
+
+Solution 2
+result State: < q a a ?1:Marking >
+accumulated substitution:
+M --> $ q q ?1:Marking
+
+Solution 3
+result State: < q a a a ?2:Marking >
+accumulated substitution:
+M --> $ $ q ?2:Marking
+
+snarrow in NARROWING-VENDING-MACHINE : < M q > using buy-x .
+
+Solution 1
+result State: < q >
+accumulated substitution:
+M --> $
+
+No more solutions.
+snarrow in NARROWING-VENDING-MACHINE : < M q a > using buy-x .
+
+No solutions.
+snarrow in NARROWING-VENDING-MACHINE : < M q > using idle .
+
+Solution 1
+result State: < q M >
+accumulated substitution:
+none
+
+No more solutions.
+snarrow in NARROWING-VENDING-MACHINE : < M q > using match < $ q > .
+
+No solutions.
+snarrow in NARROWING-VENDING-MACHINE : < M q > using match < $ q > .
+
+Solution 1
+result State: < q M >
+accumulated substitution:
+none
+
+No more solutions.
+snarrow in NARROWING-VENDING-MACHINE : < M q > using match < $ > .
+
+Solution 1
+result State: < q M >
+accumulated substitution:
+none
+
+No more solutions.
+snarrow in NARROWING-VENDING-MACHINE : < M q > using match < empty > .
+
+No solutions.
+snarrow in NARROWING-VENDING-MACHINE : < M q > using amatch q .
+
+Solution 1
+result State: < q M >
+accumulated substitution:
+none
+
+No more solutions.
+snarrow in NARROWING-VENDING-MACHINE : < M q > using matchrew S:State by S:State using buy-a .
+
+Solution 1
+result State: < q a ?1:Marking >
+accumulated substitution:
+M --> q q q ?1:Marking
+
+No more solutions.
+snarrow in NARROWING-VENDING-MACHINE : < M q > using buy-a ? buy-c : buy-c .
+
+Solution 1
+result State: < a c ?1:Marking >
+accumulated substitution:
+M --> $ q q ?1:Marking
+
+No more solutions.
+snarrow in NARROWING-VENDING-MACHINE : < M q > using match < $ q > ? buy-a : buy-c .
+
+Solution 1
+result State: < c ?0:Marking >
+accumulated substitution:
+M --> q q q ?0:Marking
+
+No more solutions.
+snarrow in NARROWING-VENDING-MACHINE : < M q > using match < $ q > ? buy-a : buy-c .
+
+Solution 1
+result State: < q a ?0:Marking >
+accumulated substitution:
+M --> q q q ?0:Marking
+
+No more solutions.
+snarrow in TWO-VENDING-MACHINES : < M $ > using buy-a[M <- $] .
+
+Solution 1
+result State: < $ q a >
+accumulated substitution:
+M --> $
+
+No more solutions.
+snarrow in TWO-VENDING-MACHINES : {< M q > | < M $ >} using matchrew {L | R} by L using buy-a, R using buy-c .
+
+Solution 1
+result Pair: {< q a ?2:Marking > | < q q q c ?2:Marking >}
+accumulated substitution:
+M --> q q q ?2:Marking
+
+No more solutions.
+snarrow in TWO-VENDING-MACHINES : {< M q > | < N $ >} using left{buy-a} .
+
+Solution 1
+result Pair: {< q a ?4:Money > | < $ ?1:Marking >}
+accumulated substitution:
+N --> ?1:Marking
+M --> q q q ?4:Money
+
+No more solutions.
+snarrow in TWO-VENDING-MACHINES : {< M q > | < N $ >} using pair{buy-a, buy-c} .
+
+Solution 1
+result Pair: {< q a ?4:Marking > | < c ?6:Marking >}
+accumulated substitution:
+N --> ?6:Marking
+M --> q q q ?4:Marking
+
+No more solutions.
+snarrow in TWO-VENDING-MACHINES : {< M q > | < N $ >} using chain{buy-a, buy-c} .
+
+Solution 1
+result Pair: {< a c ?6:Marking > | < $ ?1:Marking >}
+accumulated substitution:
+N --> ?1:Marking
+M --> $ q q ?6:Marking
+
+No more solutions.
+snarrow in TWO-VENDING-MACHINES : {< M q > | < M $ >} using pair{buy-a, buy-c} .
+
+Solution 1
+result Pair: {< q a ?5:Marking > | < q q q c ?5:Marking >}
+accumulated substitution:
+M --> q q q ?5:Marking
+
+No more solutions.
+snarrow in TWO-VENDING-MACHINES : P:Pair using matchrew {< q > | < M >} by M using idle .
+
+No solutions.
+snarrow in TWO-VENDING-MACHINES : P:Pair using matchrew {< q > | < M >} by M using idle .
+
+Solution 1
+result Pair: {< q > | < ?0:Marking >}
+accumulated substitution:
+P:Pair --> {< q > | < ?0:Marking >}
+
+No more solutions.
+snarrow in TWO-VENDING-MACHINES : P:Pair using matchrew {< q M > | < M >} by M using idle .
+
+Solution 1
+result Pair: {< q ?0:Marking > | < ?0:Marking >}
+accumulated substitution:
+P:Pair --> {< q ?0:Marking > | < ?0:Marking >}
+
+No more solutions.
+snarrow in TWO-VENDING-MACHINES : P:Pair using matchrew {< q M > | < N >} by M using idle, N using idle .
+
+Solution 1
+result Pair: {< q ?1:Marking > | < ?0:Marking >}
+accumulated substitution:
+P:Pair --> {< q ?1:Marking > | < ?0:Marking >}
+
+No more solutions.
+snarrow in TWO-VENDING-MACHINES : {< M q > | < M $ >} using matchrew {L | R} by L using buy-a, R using buy-c .
+
+Solution 1
+result Pair: {< q a ?2:Marking > | < q q q c ?2:Marking >}
+accumulated substitution:
+M --> q q q ?2:Marking
+
+No more solutions.
+snarrow in TWO-VENDING-MACHINES : {< M q > | < N $ >} using matchrew {L | L} by L using buy-a .
+
+Solution 1
+result Pair: {< q a ?1:Marking > | < q a ?1:Marking >}
+accumulated substitution:
+N --> ?1:Marking
+M --> q q q ?1:Marking
+
+No more solutions.
+snarrow in VENDING-STRAT : < M q > using buy-many-a(10) .
+
+Solution 1
+result State: < q a a a a a a a a a a ?9:Marking >
+accumulated substitution:
+M --> $ $ $ $ $ $ $ q q ?9:Marking
+
+No more solutions.
+snarrow in FOLDING-NARROWING-VENDING-MACHINE : < M a c > using buy-a ; buy-c ; match < empty > .
+
+No solutions.
+snarrow in FOLDING-NARROWING-VENDING-MACHINE : < M a c > using buy-a ; buy-c ; match < empty > .
+
+Solution 1
+result State: < ?1:Marking >
+accumulated substitution:
+M --> $ q q q ?1:Marking
+
+No more solutions.
+snarrow in FOLDING-NARROWING-VENDING-MACHINE : < M a c > using buy-a ; buy-c[M <- empty] .
+
+Solution 1
+result State: < empty >
+accumulated substitution:
+M --> $ q q q
+
+No more solutions.
+snarrow in FOLDING-NARROWING-VENDING-MACHINE : < M a c > using all .
+
+Solution 1
+result State: < q c ?0:Marking >
+accumulated substitution:
+M --> $ ?0:Marking
+
+Solution 2
+result State: < a ?0:Marking >
+accumulated substitution:
+M --> $ ?0:Marking
+
+No more solutions.
+snarrow in LP-SEMANTICS : < 'sibling('sally, 'erica), nil > using sibling .
+
+Solution 1
+result Configuration: < 'parent(?0:Term, 'sally), 'parent(?0:Term, 'erica), nil >
+accumulated substitution:
+none
+
+No more solutions.
+snarrow in LP-SEMANTICS : < 'sibling('sally, 'erica), nil > using (sibling | father | fact)* ; match < nil > .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+none
+
+No more solutions.
+snarrow in LP-SEMANTICS : < 'sibling('sally, 'erica), nil > using sibling ; father[Y <- 'sally] ; fact ; father[Y <- 'erica] ; fact .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+none
+
+No more solutions.
+snarrow in LP-SEMANTICS : < 'sibling(X, 'erica), nil > using sibling ; father[X <- 'tom, Y <- 'sally] ; fact ; father ; fact .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+X --> 'sally
+
+No more solutions.
+snarrow in LP-SEMANTICS : < 'sibling(X, 'erica), nil > using (sibling | father | fact)* ; match < nil > .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+X --> 'erica
+
+Solution 2
+result Configuration: < nil >
+accumulated substitution:
+X --> 'sally
+
+No more solutions.
+snarrow in LP-SEMANTICS : < 'sibling(X, 'erica), nil > using (sibling | mother | fact)* ; match < nil > .
+
+No solutions.
+snarrow in LP-SEMANTICS : < 'sibling(X, Y), nil > using (sibling | mother | fact)* ; match < nil > .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+X --> 'john
+Y --> 'john
+
+Solution 2
+result Configuration: < nil >
+accumulated substitution:
+X --> 'mike
+Y --> 'mike
+
+No more solutions.
+snarrow in LP-SEMANTICS : < 'sibling(X, Y), nil > using (sibling | father | fact)* ; match < nil > .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+X --> 'john
+Y --> 'john
+
+Solution 2
+result Configuration: < nil >
+accumulated substitution:
+X --> 'erica
+Y --> 'erica
+
+Solution 3
+result Configuration: < nil >
+accumulated substitution:
+X --> 'erica
+Y --> 'sally
+
+Solution 4
+result Configuration: < nil >
+accumulated substitution:
+X --> 'sally
+Y --> 'erica
+
+Solution 5
+result Configuration: < nil >
+accumulated substitution:
+X --> 'sally
+Y --> 'sally
+
+No more solutions.
+snarrow in LP-SEMANTICS : < 'sibling(X, Y), nil > using (sibling | father | mother | fact)* ; match < nil > .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+X --> 'john
+Y --> 'john
+
+Solution 2
+result Configuration: < nil >
+accumulated substitution:
+X --> 'erica
+Y --> 'erica
+
+Solution 3
+result Configuration: < nil >
+accumulated substitution:
+X --> 'erica
+Y --> 'sally
+
+Solution 4
+result Configuration: < nil >
+accumulated substitution:
+X --> 'sally
+Y --> 'erica
+
+Solution 5
+result Configuration: < nil >
+accumulated substitution:
+X --> 'sally
+Y --> 'sally
+
+Solution 6
+result Configuration: < nil >
+accumulated substitution:
+X --> 'john
+Y --> 'john
+
+Solution 7
+result Configuration: < nil >
+accumulated substitution:
+X --> 'mike
+Y --> 'mike
+
+No more solutions.
+snarrow in LP-SEMANTICS : < 'sibling(X, Y), nil > using all * ; match < nil > .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+X --> 'john
+Y --> 'john
+
+Solution 2
+result Configuration: < nil >
+accumulated substitution:
+X --> 'mike
+Y --> 'mike
+
+Solution 3
+result Configuration: < nil >
+accumulated substitution:
+X --> 'john
+Y --> 'john
+
+Solution 4
+result Configuration: < nil >
+accumulated substitution:
+X --> 'erica
+Y --> 'erica
+
+Solution 5
+result Configuration: < nil >
+accumulated substitution:
+X --> 'erica
+Y --> 'sally
+
+Solution 6
+result Configuration: < nil >
+accumulated substitution:
+X --> 'sally
+Y --> 'erica
+
+Solution 7
+result Configuration: < nil >
+accumulated substitution:
+X --> 'sally
+Y --> 'sally
+
+No more solutions.
+snarrow in LP-SEMANTICS : < 'relative('jane, 'john), nil > using (father | mother | grandpa | fact)* ; match < nil > .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+none
+
+No more solutions.
+snarrow in LP-SEMANTICS : < 'relative(X, 'john), nil > using (father | mother | grandpa | fact)* ; match < nil > .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+X --> 'tom
+
+Solution 2
+result Configuration: < nil >
+accumulated substitution:
+X --> 'jane
+
+No more solutions.
+snarrow in PROLOG-FAMILY : < 'sibling('sally, 'erica) > using solve .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+none
+
+No more solutions.
+snarrow in PROLOG-FAMILY : < 'sibling(X, 'erica) > using solve .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+X --> 'sally
+
+Solution 2
+result Configuration: < nil >
+accumulated substitution:
+X --> 'erica
+
+No more solutions.
+snarrow in PROLOG-FAMILY : < 'parent(X, 'john) > using solve .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+X --> 'mike
+
+Solution 2
+result Configuration: < nil >
+accumulated substitution:
+X --> 'sally
+
+No more solutions.
+snarrow in PROLOG-FAMILY : < 'parent(X, 'tom) > using solve .
+
+No solutions.
+snarrow in PROLOG-SOCRATE : < 'mortal('socrate) > using solve .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+none
+
+No more solutions.
+snarrow in PROLOG-SOCRATE : < 'inmortal('poseidon) > using solve .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+none
+
+No more solutions.
+snarrow in PROLOG-SOCRATE : < 'inmortal('socrate) > using solve .
+
+No solutions.
+snarrow in PROLOG-APPEND : < 'append('nil, 'nil, X) > using solve .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+X --> 'nil
+
+No more solutions.
+snarrow in PROLOG-APPEND : < 'append('cons['a, 'nil], 'cons['b, 'nil], X) > using solve .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+X --> 'cons['a, 'cons['b, 'nil]]
+
+No more solutions.
+snarrow in PROLOG-APPEND : < 'append('cons['a, 'nil], X, 'cons['a, 'cons['c, 'nil]]) > using solve .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+X --> 'cons['c, 'nil]
+
+No more solutions.
+snarrow in PROLOG-APPEND : < 'append2('a · 'b, 'c · 'd, X) > using solve .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+X --> 'a · 'b · 'c · 'd
+
+No more solutions.
+snarrow in PROLOG-APPEND : < 'append2('a · X, Y · 'e, 'a · 'b · 'c · 'd · 'e) > using solve .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+X --> empty
+Y --> 'b · 'c · 'd
+
+Solution 2
+result Configuration: < nil >
+accumulated substitution:
+X --> 'b · 'c · 'd
+Y --> empty
+
+Solution 3
+result Configuration: < nil >
+accumulated substitution:
+X --> 'b
+Y --> 'c · 'd
+
+Solution 4
+result Configuration: < nil >
+accumulated substitution:
+X --> 'b · 'c
+Y --> 'd
+
+No more solutions.
+snarrow in PROLOG-APPEND : < 'contains('v, 'u · 'v · 'w) > using solve .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+none
+
+No more solutions.
+snarrow in PROLOG-APPEND : < 'contains(X, 'u · 'v · 'w) > using solve .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+X --> 'w
+
+Solution 2
+result Configuration: < nil >
+accumulated substitution:
+X --> 'u
+
+Solution 3
+result Configuration: < nil >
+accumulated substitution:
+X --> 'v
+
+No more solutions.
+snarrow in PROLOG-APPEND : < 'contains('u, X) > using solve .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+X --> ?3:Term · 'u · ?4:Term
+
+No more solutions.
+snarrow in PROLOG-APPEND : < 'reverse(empty, X) > using solve .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+X --> empty
+
+No more solutions.
+snarrow in PROLOG-APPEND : < 'reverse('1 · '2 · '3, X) > using solve .
+
+Solution 1
+result Configuration: < nil >
+accumulated substitution:
+X --> '3 · '2 · '1
+
+No more solutions.

@@ -1,0 +1,63 @@
+*** adapted from the book All About Maude
+*** adapted from the Maude Manual
+*** by the Maude team
+
+mod NARROWING-VENDING-MACHINE is
+   sorts Coin Item Marking Money State .
+   subsort Coin < Money .
+   op empty : -> Money .
+   op __ : Money Money -> Money [assoc comm id: empty] .
+   subsort Money Item < Marking .
+   op __ : Marking Marking -> Marking [assoc comm id: empty] .
+   op <_> : Marking -> State .
+   ops $ q : -> Coin .
+   ops a c : -> Item .
+   var M : Marking .
+   rl [buy-c] : < M $ > => < M c > [narrowing] .
+   rl [buy-a] : < M $ > => < M a q > [narrowing] .
+   crl [buy-x] : < M $ > => < M > if M = q .
+   eq [change] : q q q q M = $ M [variant] .
+endm
+
+*** vu-narrow [1] in NARROWING-VENDING-MACHINE : < M:Money > =>* < a c > .
+*** vu-narrow [,5] in NARROWING-VENDING-MACHINE : < M:Money > =>* < a c > .
+*** vu-narrow [,5] in NARROWING-VENDING-MACHINE : < M:Money > =>! < a c > .
+*** vu-narrow [,10] in NARROWING-VENDING-MACHINE : < C1:Coin C2:Coin C3:Coin C4:Coin > =>! < M:Money a c > .
+
+mod TWO-VENDING-MACHINES is
+	protecting NARROWING-VENDING-MACHINE .
+
+	sort Pair .
+
+	op {_|_} : State State -> Pair [ctor] .
+
+	vars M N : Marking .
+	vars L R L' R' L'' : State .
+	var  O : Money .
+
+	crl [pair] : {L | R} => {L' | R'} if L => L' /\ R => R' .
+	crl [chain] : {L | R} => {L'' | R} if L => L' /\ L' => L'' .
+	crl [left2] : {L | R} => {L' | R} if L => L' .
+	crl [left] : {L | R} => {L' | R} if L = < O > /\ L => L' [nonexec] .
+endm
+
+*** snarrow {< M:Marking q > | < N:Marking $ >} using amatchrew L by L using buy-a .
+*** snarrow {< M:Marking q > | < N:Marking $ >} using matchrew {L | R} by L using buy-a .
+*** snarrow {< M:Marking q > | < N:Marking $ >} using matchrew {L | R} by L using buy-a, R using buy-c .
+*** snarrow {< M:Marking q > | < M:Marking $ >} using matchrew {L | R} by L using buy-a, R using buy-c .
+*** snarrow {< M:Marking q > | < N:Marking $ >} using pair{buy-a, buy-c} .
+
+smod VENDING-STRAT is
+	protecting NARROWING-VENDING-MACHINE .
+	protecting NAT .
+
+	strat buy-many-a : Nat @ State .
+
+	var N : Nat .
+	var M : Marking .
+
+	sd buy-many-a(0) := idle .
+	sd buy-many-a(s N) := buy-a ; buy-many-a(N) .
+endsm
+
+select NARROWING-VENDING-MACHINE .
